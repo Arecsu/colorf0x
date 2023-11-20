@@ -12,8 +12,6 @@ const sendCurrentColors = () => {
     // get the color
     themeColor = el_themeColor.content
 
-    console.log('themeColor', themeColor, 'pagePrefersColorScheme', pagePrefersColorScheme)
-
     // send color to background.js script
     browser.runtime.sendMessage({ reason: "BROWSER_COLOR_UPDATE", color: themeColor, pagePrefersColorScheme })
 }
