@@ -1,0 +1,28 @@
+{
+	"name": "colorf0x",
+	"description": "Match the theme-color of the website with Firefox's UI",
+	"version": "1.0",
+	"author": "Alejandro Romano",
+	"homepage_url": "https://github.com/easonwong-de/Adaptive-Tab-Bar-Colour",
+	"default_locale": "en",
+	"permissions": ["activeTab", "tabs", "theme", "browserSettings", "management"],
+	"background": {
+		"scripts": ["background.js", "tinycolor.js"],
+		"type": "module",
+		"persistent": true
+	},
+	"content_scripts": [
+		{
+			"matches": ["<all_urls>"],
+			"js": ["content_script.js"]
+		}
+	],
+	"icons": {
+		"16": "images/colorf0x_16.png",
+		"32": "images/colorf0x_32.png",
+		"48": "images/colorf0x_48.png",
+		"96": "images/colorf0x_96.png",
+		"128": "images/colorf0x_128.png"
+	},
+	"manifest_version": 2
+}
