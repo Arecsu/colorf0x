@@ -122,33 +122,50 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
         }
     }
 
+    const toolbar_field_color = (() => {
+        const color = tinycolor(bgColor)
+        if (color.getLuminance() < 0.9) {
+            return fgScheme == 'lightText' ?
+                color.brighten(8).toRgbString() :
+                color.brighten(20).desaturate(10).toRgbString()
+        } else {
+            return fgScheme == 'lightText' ?
+                color.darken(5).toRgbString() :
+                color.darken(5).desaturate(10).toRgbString()
+        }
+    })()
+
+    const tab_selected_color = (() => {
+        const color = tinycolor(bgColor)
+        if (color.getLuminance() < 0.9) {
+            return fgScheme == 'lightText' ?
+                color.brighten(12).toRgbString() :
+                color.brighten(20).desaturate(10).toRgbString()
+        } else {
+            return fgScheme == 'lightText' ?
+                color.darken(7).toRgbString() :
+                color.darken(7).desaturate(10).toRgbString()
+        }
+    })()
+
     const theme = {
         colors: {
             // Tabbar & tab
             frame: tinycolor(bgColor).toRgbString(),
             frame_inactive: tinycolor(bgColor).toRgbString(),
 
-            tab_selected: fgScheme == 'lightText' ?
-                tinycolor(bgColor).brighten(12).toRgbString() :
-                tinycolor(bgColor).brighten(20).desaturate(10).toRgbString(),
+            tab_selected: tab_selected_color,
             // URL bar
-            toolbar_field: fgScheme == 'lightText' ?
-                tinycolor(bgColor).brighten(8).toRgbString() :
-                tinycolor(bgColor).brighten(20).desaturate(10).toRgbString(),
+            toolbar_field: toolbar_field_color,
             /*
             toolbar_field: fgScheme == 'dark' ? 
                                     tinycolor(bgColor).saturate(40).brighten(4).toRgbString() :
                                     tinycolor(bgColor).desaturate(5).darken(6).toRgbString(),
             */
-
             sidebar: tinycolor(bgColor).toRgbString(),
             popup: tinycolor(bgColor).toRgbString(),
 
-
-
-            toolbar_field_focus: fgScheme == 'lightText' ?
-                tinycolor(bgColor).brighten(8).toRgbString() :
-                tinycolor(bgColor).brighten(40).saturate(5).toRgbString(),
+            toolbar_field_focus: toolbar_field_color,
             // etc
             ...fgSchemes[fgScheme]['colors']
         },
