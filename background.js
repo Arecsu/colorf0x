@@ -122,30 +122,66 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
         }
     }
 
+    let toolbar_field_base_color = tinycolor(bgColor)
+
+    // tsunami of manually hardcoded colors
+
+    if (tinycolor(bgColor).toHsl()['s'] > 0.9 && tinycolor(bgColor).getLuminance() > 0.8) {
+        console.log('here1')
+        toolbar_field_base_color = fgScheme == 'lightText' ?
+            toolbar_field_base_color :
+            toolbar_field_base_color.brighten(1).desaturate(20)
+    }
+
+    if (tinycolor(bgColor).toHsl()['s'] > 0.85 && tinycolor(bgColor).getLuminance() < 0.9) {
+        console.log('here2')
+        toolbar_field_base_color = fgScheme == 'lightText' ?
+            toolbar_field_base_color.brighten(3).desaturate(15) :
+            toolbar_field_base_color.brighten(3).desaturate(35)
+    }
+
+    if (tinycolor(bgColor).toHsl()['s'] > 0.9 && tinycolor(bgColor).getLuminance() > 0.17) {
+        console.log('here6')
+        toolbar_field_base_color = fgScheme == 'lightText' ?
+            toolbar_field_base_color.darken(3).saturate(5) :
+            toolbar_field_base_color
+    }
+
     const toolbar_field_color = (() => {
-        const color = tinycolor(bgColor)
-        if (color.getLuminance() < 0.9) {
-            return fgScheme == 'lightText' ?
-                color.brighten(8).toRgbString() :
-                color.brighten(20).desaturate(10).toRgbString()
+        if (toolbar_field_base_color.getLuminance() < 0.9) {
+            console.log('here4')
+            fgScheme == 'lightText' ?
+                toolbar_field_base_color.brighten(13) :
+                toolbar_field_base_color.brighten(17)
         } else {
-            return fgScheme == 'lightText' ?
-                color.darken(5).toRgbString() :
-                color.darken(5).desaturate(10).toRgbString()
+            console.log('here5')
+            fgScheme == 'lightText' ?
+                toolbar_field_base_color.darken(6) :
+                toolbar_field_base_color.darken(9)
         }
+
+        return toolbar_field_base_color.toRgbString()
     })()
 
     const tab_selected_color = (() => {
-        const color = tinycolor(bgColor)
-        if (color.getLuminance() < 0.9) {
+        let tab_selected_color_base = toolbar_field_base_color
+        /*
+        fgScheme == 'lightText' ?
+            tab_selected_color_base.brighten(1) :
+            tab_selected_color_base.brighten(1)
+        */
+        return tab_selected_color_base.toRgbString()
+        /*
+        if (tab_selected_color_base.getLuminance() < 0.9) {
             return fgScheme == 'lightText' ?
-                color.brighten(12).toRgbString() :
-                color.brighten(20).desaturate(10).toRgbString()
+                tab_selected_color_base.brighten(10).toRgbString() :
+                tab_selected_color_base.brighten(16).desaturate(40).toRgbString()
         } else {
             return fgScheme == 'lightText' ?
-                color.darken(7).toRgbString() :
-                color.darken(7).desaturate(10).toRgbString()
+                tab_selected_color_base.darken(6).toRgbString() :
+                tab_selected_color_base.darken(6).desaturate(30).toRgbString()
         }
+        */
     })()
 
     const theme = {
@@ -157,11 +193,7 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
             tab_selected: tab_selected_color,
             // URL bar
             toolbar_field: toolbar_field_color,
-            /*
-            toolbar_field: fgScheme == 'dark' ? 
-                                    tinycolor(bgColor).saturate(40).brighten(4).toRgbString() :
-                                    tinycolor(bgColor).desaturate(5).darken(6).toRgbString(),
-            */
+ 
             sidebar: tinycolor(bgColor).toRgbString(),
             popup: tinycolor(bgColor).toRgbString(),
 
