@@ -68,7 +68,7 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
                 popup_border: "rgba(0, 0, 0, .2)",
                 // Static
                 tab_text: "rgb(0, 0, 0)",
-                tab_background_text: "rgb(60, 60, 60)",
+                tab_background_text: "rgb(20, 20, 20)",
                 tab_loading: "rgba(0, 0, 0, 0)",
                 tab_line: "rgba(0, 0, 0, 0)",
                 ntp_text: "rgb(0, 0, 0)",
@@ -103,7 +103,7 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
                 popup_border: "rgba(255, 255, 255, .2)",
                 // Static
                 tab_text: "rgb(255, 255, 255)",
-                tab_background_text: "rgb(220, 220, 220)",
+                tab_background_text: "rgb(250, 250, 250)",
                 tab_loading: "rgba(255, 255, 255, 0)",
                 tab_line: "rgba(255, 255, 255, 0)",
                 ntp_text: "rgb(255, 255, 255)",
@@ -127,37 +127,37 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
     // tsunami of manually hardcoded colors
 
     if (tinycolor(bgColor).toHsl()['s'] > 0.9 && tinycolor(bgColor).getLuminance() > 0.8) {
-        console.log('here1')
+        // console.log('here1')
         toolbar_field_base_color = fgScheme == 'lightText' ?
             toolbar_field_base_color :
             toolbar_field_base_color.brighten(1).desaturate(20)
     }
 
     if (tinycolor(bgColor).toHsl()['s'] > 0.85 && tinycolor(bgColor).getLuminance() < 0.9) {
-        console.log('here2')
+        // console.log('here2')
         toolbar_field_base_color = fgScheme == 'lightText' ?
             toolbar_field_base_color.brighten(3).desaturate(15) :
             toolbar_field_base_color.brighten(3).desaturate(35)
     }
 
     if (tinycolor(bgColor).toHsl()['s'] > 0.9 && tinycolor(bgColor).getLuminance() > 0.17) {
-        console.log('here6')
+        // console.log('here6')
         toolbar_field_base_color = fgScheme == 'lightText' ?
             toolbar_field_base_color.darken(3).saturate(5) :
-            toolbar_field_base_color
+            toolbar_field_base_color.darken(2).desaturate(5)
     }
 
     const toolbar_field_color = (() => {
         if (toolbar_field_base_color.getLuminance() < 0.9) {
-            console.log('here4')
+            // console.log('here4')
             fgScheme == 'lightText' ?
                 toolbar_field_base_color.brighten(13) :
                 toolbar_field_base_color.brighten(17)
         } else {
-            console.log('here5')
+            // console.log('here5')
             fgScheme == 'lightText' ?
                 toolbar_field_base_color.darken(6) :
-                toolbar_field_base_color.darken(9)
+                toolbar_field_base_color.darken(5)
         }
 
         return toolbar_field_base_color.toRgbString()
