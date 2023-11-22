@@ -11,7 +11,7 @@ This is how [Safari 15](https://css-tricks.com/safari-15-new-ui-theme-colors-and
 Highly inspired by [Adaptive Tab Bar Colour](https://github.com/easonwong-de/Adaptive-Tab-Bar-Colour/). Part of the code has been taken from it. The main differences:
 
 - A cleaner codebase with less features
-- Colors in URL bars, active tabs, text color, etc are handled differently. Better contrast and readability.
+- Colors in URL bars, active tabs, text color, etc are handled differently. Better contrast and readability. **Very similar to how Chrome for Android does it**.
 - Reacts only to `theme-color` values from the website. It doesn't have the dynamic color algorithm that tries to match the website's header or background color that Adaptive Tab Bar Colour has.
 - No settings per website. No toggles. Just install and forget
 
