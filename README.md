@@ -1,7 +1,8 @@
-# colorf0x
-
 ![colorf0x](images_promo/colorf0x-presentation.jpg)
 
+# colorf0x
+
+<a href="https://addons.mozilla.org/en-US/firefox/addon/colorf0x/"><img src="https://raw.githubusercontent.com/Arecsu/colorf0x/main/images_promo/get-the-addon-2020.svg" width="180" alt="Get the Adddon"></a>
 
 Match the `theme-color` of the website with Firefox's UI
 
