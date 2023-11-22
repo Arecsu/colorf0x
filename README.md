@@ -14,6 +14,8 @@ Highly inspired by [Adaptive Tab Bar Colour](https://github.com/easonwong-de/Ada
 - Reacts only to `theme-color` values from the website. It doesn't have the dynamic color algorithm that tries to match the website's header or background color that Adaptive Tab Bar Colour has.
 - No settings per website. No toggles. Just install and forget
 
+Compatible with [Dark Reader](https://darkreader.org/) 🤗
+
 Thanks to [Eason Wong](https://github.com/easonwong-de) for its work with [Adaptive Tab Bar Colour](https://github.com/easonwong-de/Adaptive-Tab-Bar-Colour/)!
 
 And also:
