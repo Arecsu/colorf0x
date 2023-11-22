@@ -94,7 +94,7 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
     const toolbar_field_colorCSS = (() => {
         let color = chroma(bgColor).luminance() > 0.9 ?
             chroma(bgColor).darken(0.23) : 
-            chroma(bgColor).luminance((chroma(bgColor).luminance() + 0.03) * 1.15, 'hsl')
+            chroma(bgColor).luminance((chroma(bgColor).luminance() + 0.02) * 1.24, 'hsl')
         return color.css()
     })()
 
