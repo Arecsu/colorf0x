@@ -33,8 +33,6 @@ if (document.querySelector("meta[name=theme-color]") != null) {
 }
 
 // Detects style injections & theme-color being added to the dom
-// BUG => it makes a lot of calls to main() when it shouldn't
-// happens here: https://www.argentina.gob.ar/dine/clases-de-votos
 const onStyleInjection = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
         if (

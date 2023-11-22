@@ -1,6 +1,5 @@
 // custom neural network to determine foreground color from the provided background color
 // https://harthur.github.io/brain/
-
 /* const getForegroundScheme = function (backgroundColor) {
     const output = runNetwork(backgroundColor)
 
@@ -8,12 +7,7 @@
         return 'dark';
     }
     return 'light';
-} */
-
-const getForegroundScheme = function (bgColor) {
-    const yiq = (bgColor.r * 299 + bgColor.g * 587 + bgColor.b * 114) / 1000;
-    return (yiq >= 128) ? 'darkText' : 'lightText';
-}
+} 
 
 const runNetwork = function anonymous(input) {
     input = {
@@ -41,11 +35,20 @@ const runNetwork = function anonymous(input) {
     }
     return output
 }
+*/
+
+// this is a simplified version of the above function. I like its results better.
+const getForegroundScheme = function (bgColor) {
+    const yiq = (bgColor.r * 299 + bgColor.g * 587 + bgColor.b * 114) / 1000;
+    return (yiq >= 128) ? 'darkText' : 'lightText';
+}
 
 const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
     // bgColor: {r: 0, g: 0, b: 0, a: 1}
     // bg = background
     // fg = foreground
+
+    // unused pagePrefersColorScheme
 
     // this will return either 'light' or 'dark'
     const fgScheme = getForegroundScheme(bgColor)
@@ -132,28 +135,28 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
     // tsunami of manually hardcoded colors
 
     if (bgColorSaturation > 0.9 && bgColorLuminance > 0.8) {
-        console.log('here1')
+        // console.log('here1')
         toolbar_field_base_color = fgScheme == 'lightText' ?
             toolbar_field_base_color :
             toolbar_field_base_color.brighten(1).desaturate(20)
     }
 
     if (bgColorSaturation > 0.85 && bgColorLuminance < 0.9) {
-        console.log('here2')
+        // console.log('here2')
         toolbar_field_base_color = fgScheme == 'lightText' ?
             toolbar_field_base_color.brighten(3).desaturate(15) :
             toolbar_field_base_color.brighten(3).desaturate(35)
     }
 
     if (bgColorSaturation > 0.9 && bgColorLuminance > 0.17) {
-        console.log('here6')
+        // console.log('here6')
         toolbar_field_base_color = fgScheme == 'lightText' ?
             toolbar_field_base_color.darken(3).saturate(5) :
             toolbar_field_base_color.darken(2).desaturate(5)
     }
 
     if (bgColorSaturation > 0.43 && bgColorLuminance > 0.15) {
-        console.log('here7')
+        // console.log('here7')
         toolbar_field_base_color = fgScheme == 'lightText' ?
             toolbar_field_base_color.darken(20).saturate(40) :
             toolbar_field_base_color.brighten(2)
@@ -161,12 +164,12 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
 
     const toolbar_field_color = (() => {
         if (toolbar_field_base_color.getLuminance() < 0.9) {
-            console.log('here4')
+            // console.log('here4')
             fgScheme == 'lightText' ?
                 toolbar_field_base_color.brighten(13) :
                 toolbar_field_base_color.brighten(17)
         } else {
-            console.log('here5')
+            // console.log('here5')
             fgScheme == 'lightText' ?
                 toolbar_field_base_color.darken(6) :
                 toolbar_field_base_color.darken(5)
@@ -250,8 +253,7 @@ const applyTheme_event = () => {
 
 browser.runtime.onMessage.addListener((response, sender) => {
     if (response.reason === "BROWSER_COLOR_UPDATE") {
-        // sender.tab.active ? tryApplyTheme(sender.tab.windowId, message.color) : applyTheme_event() // what the hell is this?
-        sender.tab.active ? tryApplyTheme(sender.tab.windowId, response.color, response.pagePrefersColorScheme) : null // what the hell is this?
+        sender.tab.active ? tryApplyTheme(sender.tab.windowId, response.color, response.pagePrefersColorScheme) : null // if tab is not active, don't do anything
     }
 });
 
