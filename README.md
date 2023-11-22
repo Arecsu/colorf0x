@@ -20,7 +20,5 @@ Compatible with [Dark Reader](https://darkreader.org/) 🤗
 Thanks to [Eason Wong](https://github.com/easonwong-de) for its work with [Adaptive Tab Bar Colour](https://github.com/easonwong-de/Adaptive-Tab-Bar-Colour/)!
 
 And also:
-- [TinyColor](https://github.com/bgrins/TinyColor/) – a library to manipulate colors and switch between different formats
-- [brain.js](https://harthur.github.io/brain/) – a minimal, custom trained neural network to recognize color contrast. Used to determine the text color of the UI elements given the `theme-color` value of the website.
-
+- [chroma.js](https://gka.github.io/chroma.js/) – a library to manipulate and convert colors
 
