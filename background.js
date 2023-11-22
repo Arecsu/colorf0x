@@ -1,57 +1,23 @@
-// custom neural network to determine foreground color from the provided background color
-// https://harthur.github.io/brain/
-/* const getForegroundScheme = function (backgroundColor) {
-    const output = runNetwork(backgroundColor)
-
-    if (output.black > .5) {
-        return 'dark';
-    }
-    return 'light';
-} 
-
-const runNetwork = function anonymous(input) {
-    input = {
-        r: input.r / 255,
-        g: input.g / 255,
-        b: input.b / 255
-    }
-
-    var net = { "layers": [{ "r": {}, "g": {}, "b": {} }, { "0": { "bias": 11.863681808040084, "weights": { "r": -7.201966913915387, "g": -8.029913133910126, "b": -7.114014407251207 } }, "1": { "bias": 1.4191426085030703, "weights": { "r": -9.515013700560017, "g": -15.380774373431901, "b": 14.810615856701528 } }, "2": { "bias": 7.910577570557974, "weights": { "r": 1.0218523776135997, "g": -5.225977937366264, "b": -15.748624161479913 } } }, { "black": { "bias": 12.12465496686442, "weights": { "0": -12.349936615697885, "1": -20.392583042532355, "2": -13.721470483883609 } } }], "outputLookup": true, "inputLookup": true };
-
-    for (var i = 1; i < net.layers.length; i++) {
-        var layer = net.layers[i]
-        var output = {}
-
-        for (const id in layer) {
-            var node = layer[id]
-            let sum = node.bias
-
-            for (var iid in node.weights) {
-                sum += node.weights[iid] * input[iid]
-            }
-            output[id] = (1 / (1 + Math.exp(-sum)))
-        }
-        input = output
-    }
-    return output
-}
-*/
-
-// this is a simplified version of the above function. I like its results better.
+// YIQ formula to determine color contrast
 const getForegroundScheme = function (bgColor) {
-    const yiq = (bgColor.r * 299 + bgColor.g * 587 + bgColor.b * 114) / 1000;
+    const rgb = { 
+        r: bgColor[0],
+        g: bgColor[1],
+        b: bgColor[2]
+    }
+
+    const yiq = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
     return (yiq >= 128) ? 'darkText' : 'lightText';
 }
 
 const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
-    // bgColor: {r: 0, g: 0, b: 0, a: 1}
     // bg = background
     // fg = foreground
 
     // unused pagePrefersColorScheme
 
-    // this will return either 'light' or 'dark'
-    const fgScheme = getForegroundScheme(bgColor)
+    // this will return either 'darkText' or 'lightText'
+    const fgScheme = getForegroundScheme(chroma(bgColor).rgb())
 
     const fgSchemes = {
         darkText: {
@@ -125,112 +91,31 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
         }
     }
 
-    let toolbar_field_base_color = tinycolor(bgColor)
-
-    const bgColorSaturation = tinycolor(bgColor).toHsl()['s']
-    const bgColorHue = tinycolor(bgColor).toHsl()['h']
-    const bgColorLuminance = tinycolor(bgColor).getLuminance()
-
-    // console.log(bgColorSaturation, bgColorLuminance)
-    // console.log(bgColorHue)
-
-
-    // tsunami of manually hardcoded colors
-
-    if (bgColorSaturation > 0.9 && bgColorLuminance > 0.8) {
-        // console.log('here1')
-        toolbar_field_base_color = fgScheme == 'lightText' ?
-            toolbar_field_base_color :
-            toolbar_field_base_color.brighten(1).desaturate(20)
-    }
-
-    if (bgColorSaturation > 0.85 && bgColorLuminance < 0.9) {
-        // console.log('here2')
-        toolbar_field_base_color = fgScheme == 'lightText' ?
-            toolbar_field_base_color.brighten(3).desaturate(15) :
-            toolbar_field_base_color.brighten(24).desaturate(40)
-    }
-
-    if (bgColorSaturation > 0.9 && bgColorLuminance > 0.17) {
-        // console.log('here6')
-        toolbar_field_base_color = fgScheme == 'lightText' ?
-            toolbar_field_base_color.brighten(6).saturate(5) :
-            toolbar_field_base_color.brighten(0).saturate(10)
-    }
-    
-
-    if (bgColorSaturation > 0.43 && bgColorLuminance > 0.9) {
-        // console.log('here7')
-        toolbar_field_base_color = fgScheme == 'lightText' ?
-            toolbar_field_base_color.darken(20).saturate(40) :
-            toolbar_field_base_color.brighten(6).desaturate(30)
-    }
-
-    if (bgColorSaturation > 0.4 && bgColorLuminance < 0.4) {
-        // console.log('here888888888')
-        toolbar_field_base_color = fgScheme == 'lightText' ?
-            toolbar_field_base_color.darken(20).saturate(40) :
-            toolbar_field_base_color.brighten(5).desaturate(4)
-    }
-
-
-    if (bgColorSaturation > 0.9 && bgColorLuminance > 0.15 && bgColorHue > 40 && bgColorHue < 50) {
-        // console.log('YELLOW?')
-        toolbar_field_base_color = fgScheme == 'lightText' ?
-            toolbar_field_base_color :
-            toolbar_field_base_color.brighten(9).saturate(20).spin(-12)
-    }
-
-    const toolbar_field_color = (() => {
-        if (toolbar_field_base_color.getLuminance() < 0.9) {
-            // console.log('here4')
-            fgScheme == 'lightText' ?
-                toolbar_field_base_color.brighten(8) :
-                toolbar_field_base_color.brighten(5).desaturate(20)
-        } else {
-            // console.log('here5')
-            fgScheme == 'lightText' ?
-                toolbar_field_base_color.darken(5) :
-                toolbar_field_base_color.darken(4)
-        }
-
-        return toolbar_field_base_color.toRgbString()
+    const toolbar_field_colorCSS = (() => {
+        let color = chroma(bgColor).luminance() > 0.9 ?
+            chroma(bgColor).darken(0.23) : 
+            chroma(bgColor).luminance((chroma(bgColor).luminance() + 0.03) * 1.15, 'hsl')
+        return color.css()
     })()
 
-    const tab_selected_color = (() => {
-        let tab_selected_color_base = toolbar_field_base_color
+    const tab_selected_colorCSS = toolbar_field_colorCSS
 
-
-        if (tab_selected_color_base.getLuminance() < 0.9) {
-            fgScheme == 'lightText' ?
-                tab_selected_color_base.brighten(2) :
-                tab_selected_color_base.brighten(1)
-        } else {
-            fgScheme == 'lightText' ?
-                tab_selected_color_base.brighten(5) :
-                tab_selected_color_base.darken(1)
-        }
-
-
-        return tab_selected_color_base.toRgbString()
-
-
-    })()
+    const bgColorCSS = chroma(bgColor).css()
 
     const theme = {
         colors: {
             // Tabbar & tab
-            frame: tinycolor(bgColor).toRgbString(),
-            frame_inactive: tinycolor(bgColor).toRgbString(),
+            frame: bgColorCSS,
+            frame_inactive: bgColorCSS,
 
-            tab_selected: tab_selected_color,
+            tab_selected: tab_selected_colorCSS,
             // URL bar
-            toolbar_field: toolbar_field_color,
+            toolbar_field: toolbar_field_colorCSS,
 
-            sidebar: tinycolor(bgColor).toRgbString(),
-            popup: tinycolor(bgColor).toRgbString(),
+            sidebar: bgColorCSS,
+            popup: bgColorCSS,
 
-            toolbar_field_focus: toolbar_field_color,
+            toolbar_field_focus: toolbar_field_colorCSS,
             // etc
             ...fgSchemes[fgScheme]['colors']
         },
@@ -244,11 +129,10 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
 
 const tryApplyTheme = (windowId, color, pagePrefersColorScheme) => {
 
-    // workaround to delete 'deg' in HSL colors because tinycolor doesn't like it
+    // workaround to delete 'deg' in HSL colors because chroma.js doesn't like it
     color = color.replace('deg', '')
-    const rgbColor = tinycolor(color)
-    if (!rgbColor.isValid()) browser.theme.reset(windowId)
-    applyTheme(windowId, rgbColor.toRgb(), pagePrefersColorScheme)
+    if (!chroma.valid(color)) browser.theme.reset(windowId)
+    applyTheme(windowId, color, pagePrefersColorScheme)
 }
 
 
