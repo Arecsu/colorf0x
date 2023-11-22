@@ -128,9 +128,12 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
     let toolbar_field_base_color = tinycolor(bgColor)
 
     const bgColorSaturation = tinycolor(bgColor).toHsl()['s']
+    const bgColorHue = tinycolor(bgColor).toHsl()['h']
     const bgColorLuminance = tinycolor(bgColor).getLuminance()
 
     // console.log(bgColorSaturation, bgColorLuminance)
+    // console.log(bgColorHue)
+
 
     // tsunami of manually hardcoded colors
 
@@ -145,34 +148,50 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
         // console.log('here2')
         toolbar_field_base_color = fgScheme == 'lightText' ?
             toolbar_field_base_color.brighten(3).desaturate(15) :
-            toolbar_field_base_color.brighten(3).desaturate(35)
+            toolbar_field_base_color.brighten(24).desaturate(40)
     }
 
     if (bgColorSaturation > 0.9 && bgColorLuminance > 0.17) {
         // console.log('here6')
         toolbar_field_base_color = fgScheme == 'lightText' ?
-            toolbar_field_base_color.darken(3).saturate(5) :
-            toolbar_field_base_color.darken(2).desaturate(5)
+            toolbar_field_base_color.brighten(6).saturate(5) :
+            toolbar_field_base_color.brighten(0).saturate(10)
     }
+    
 
-    if (bgColorSaturation > 0.43 && bgColorLuminance > 0.15) {
+    if (bgColorSaturation > 0.43 && bgColorLuminance > 0.9) {
         // console.log('here7')
         toolbar_field_base_color = fgScheme == 'lightText' ?
             toolbar_field_base_color.darken(20).saturate(40) :
-            toolbar_field_base_color.brighten(2)
+            toolbar_field_base_color.brighten(6).desaturate(30)
+    }
+
+    if (bgColorSaturation > 0.4 && bgColorLuminance < 0.4) {
+        // console.log('here888888888')
+        toolbar_field_base_color = fgScheme == 'lightText' ?
+            toolbar_field_base_color.darken(20).saturate(40) :
+            toolbar_field_base_color.brighten(5).desaturate(4)
+    }
+
+
+    if (bgColorSaturation > 0.9 && bgColorLuminance > 0.15 && bgColorHue > 40 && bgColorHue < 50) {
+        // console.log('YELLOW?')
+        toolbar_field_base_color = fgScheme == 'lightText' ?
+            toolbar_field_base_color :
+            toolbar_field_base_color.brighten(9).saturate(20).spin(-12)
     }
 
     const toolbar_field_color = (() => {
         if (toolbar_field_base_color.getLuminance() < 0.9) {
             // console.log('here4')
             fgScheme == 'lightText' ?
-                toolbar_field_base_color.brighten(13) :
-                toolbar_field_base_color.brighten(17)
+                toolbar_field_base_color.brighten(8) :
+                toolbar_field_base_color.brighten(5).desaturate(20)
         } else {
             // console.log('here5')
             fgScheme == 'lightText' ?
-                toolbar_field_base_color.darken(6) :
-                toolbar_field_base_color.darken(5)
+                toolbar_field_base_color.darken(5) :
+                toolbar_field_base_color.darken(4)
         }
 
         return toolbar_field_base_color.toRgbString()
@@ -180,23 +199,22 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
 
     const tab_selected_color = (() => {
         let tab_selected_color_base = toolbar_field_base_color
-        /*
-        fgScheme == 'lightText' ?
-            tab_selected_color_base.brighten(1) :
-            tab_selected_color_base.brighten(1)
-        */
-        return tab_selected_color_base.toRgbString()
-        /*
+
+
         if (tab_selected_color_base.getLuminance() < 0.9) {
-            return fgScheme == 'lightText' ?
-                tab_selected_color_base.brighten(10).toRgbString() :
-                tab_selected_color_base.brighten(16).desaturate(40).toRgbString()
+            fgScheme == 'lightText' ?
+                tab_selected_color_base.brighten(2) :
+                tab_selected_color_base.brighten(1)
         } else {
-            return fgScheme == 'lightText' ?
-                tab_selected_color_base.darken(6).toRgbString() :
-                tab_selected_color_base.darken(6).desaturate(30).toRgbString()
+            fgScheme == 'lightText' ?
+                tab_selected_color_base.brighten(5) :
+                tab_selected_color_base.darken(1)
         }
-        */
+
+
+        return tab_selected_color_base.toRgbString()
+
+
     })()
 
     const theme = {
@@ -208,7 +226,7 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
             tab_selected: tab_selected_color,
             // URL bar
             toolbar_field: toolbar_field_color,
- 
+
             sidebar: tinycolor(bgColor).toRgbString(),
             popup: tinycolor(bgColor).toRgbString(),
 
