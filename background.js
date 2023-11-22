@@ -124,37 +124,49 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
 
     let toolbar_field_base_color = tinycolor(bgColor)
 
+    const bgColorSaturation = tinycolor(bgColor).toHsl()['s']
+    const bgColorLuminance = tinycolor(bgColor).getLuminance()
+
+    // console.log(bgColorSaturation, bgColorLuminance)
+
     // tsunami of manually hardcoded colors
 
-    if (tinycolor(bgColor).toHsl()['s'] > 0.9 && tinycolor(bgColor).getLuminance() > 0.8) {
-        // console.log('here1')
+    if (bgColorSaturation > 0.9 && bgColorLuminance > 0.8) {
+        console.log('here1')
         toolbar_field_base_color = fgScheme == 'lightText' ?
             toolbar_field_base_color :
             toolbar_field_base_color.brighten(1).desaturate(20)
     }
 
-    if (tinycolor(bgColor).toHsl()['s'] > 0.85 && tinycolor(bgColor).getLuminance() < 0.9) {
-        // console.log('here2')
+    if (bgColorSaturation > 0.85 && bgColorLuminance < 0.9) {
+        console.log('here2')
         toolbar_field_base_color = fgScheme == 'lightText' ?
             toolbar_field_base_color.brighten(3).desaturate(15) :
             toolbar_field_base_color.brighten(3).desaturate(35)
     }
 
-    if (tinycolor(bgColor).toHsl()['s'] > 0.9 && tinycolor(bgColor).getLuminance() > 0.17) {
-        // console.log('here6')
+    if (bgColorSaturation > 0.9 && bgColorLuminance > 0.17) {
+        console.log('here6')
         toolbar_field_base_color = fgScheme == 'lightText' ?
             toolbar_field_base_color.darken(3).saturate(5) :
             toolbar_field_base_color.darken(2).desaturate(5)
     }
 
+    if (bgColorSaturation > 0.43 && bgColorLuminance > 0.15) {
+        console.log('here7')
+        toolbar_field_base_color = fgScheme == 'lightText' ?
+            toolbar_field_base_color.darken(20).saturate(40) :
+            toolbar_field_base_color.brighten(2)
+    }
+
     const toolbar_field_color = (() => {
         if (toolbar_field_base_color.getLuminance() < 0.9) {
-            // console.log('here4')
+            console.log('here4')
             fgScheme == 'lightText' ?
                 toolbar_field_base_color.brighten(13) :
                 toolbar_field_base_color.brighten(17)
         } else {
-            // console.log('here5')
+            console.log('here5')
             fgScheme == 'lightText' ?
                 toolbar_field_base_color.darken(6) :
                 toolbar_field_base_color.darken(5)
