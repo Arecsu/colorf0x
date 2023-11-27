@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "colorf0x",
-	"version": "1.40",
+	"version": "1.41",
 
 	"description": "Match the theme-color of the website with Firefox's UI",
 	"homepage_url": "https://github.com/Arecsu/colorf0x/",
