@@ -95,12 +95,14 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
         let color = chroma(bgColor).luminance() > 0.9 ?
             chroma(bgColor).darken(0.23) : 
             chroma(bgColor).luminance((chroma(bgColor).luminance() + 0.02) * 1.24, 'hsl')
+        
+        color.alpha(1)
         return color.css()
     })()
 
     const tab_selected_colorCSS = toolbar_field_colorCSS
 
-    const bgColorCSS = chroma(bgColor).css()
+    const bgColorCSS = chroma(bgColor).alpha(1).css()
 
     const theme = {
         colors: {
@@ -131,7 +133,10 @@ const tryApplyTheme = (windowId, color, pagePrefersColorScheme) => {
 
     // workaround to delete 'deg' in HSL colors because chroma.js doesn't like it
     color = color.replace('deg', '')
-    if (!chroma.valid(color)) browser.theme.reset(windowId)
+    if (!chroma.valid(color) || chroma(color).alpha() == 0) {
+        browser.theme.reset(windowId)
+        return
+    }
     applyTheme(windowId, color, pagePrefersColorScheme)
 }
 
