@@ -50,7 +50,7 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
                 icons: "rgb(30, 30, 30)",
             },
             properties: {
-                color_scheme: "system",
+                color_scheme: "light",
                 content_color_scheme: "auto"
 
             },
@@ -85,7 +85,7 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
                 icons: "rgb(255, 255, 255)",
             },
             properties: {
-                color_scheme: "system",
+                color_scheme: "dark",
                 content_color_scheme: "auto"
             },
         }
