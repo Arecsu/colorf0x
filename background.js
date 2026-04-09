@@ -13,29 +13,20 @@ const getForegroundScheme = function (bgColor) {
 const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
     // bg = background
     // fg = foreground
-
-    // unused pagePrefersColorScheme
-
-    // this will return either 'darkText' or 'lightText'
+    
     const fgScheme = getForegroundScheme(chroma(bgColor).rgb())
-
+    
     const fgSchemes = {
         darkText: {
             colors: {
-                // Tabbar & tab
                 ntp_background: "rgb(255, 255, 255)",
-                // Toolbar
                 toolbar: "rgba(0, 0, 0, 0)",
                 toolbar_top_separator: "rgba(0, 0, 0, 0)",
                 toolbar_bottom_separator: "rgba(0, 0, 0, 0)",
-                // URL bar
                 toolbar_field_border: "rgba(0, 0, 0, 0)",
                 toolbar_field_border_focus: "rgb(130, 180, 245)",
-                // Sidebar
                 sidebar_border: "rgba(0, 0, 0, .2)",
-                // Popup
                 popup_border: "rgba(0, 0, 0, .2)",
-                // Static
                 tab_text: "rgb(0, 0, 0)",
                 tab_background_text: "rgb(20, 20, 20)",
                 tab_loading: "rgba(0, 0, 0, 0)",
@@ -52,25 +43,18 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
             properties: {
                 color_scheme: "light",
                 content_color_scheme: "auto"
-
             },
         },
         lightText: {
             colors: {
-                // Tabbar & tab
                 ntp_background: "rgb(255, 255, 255)",
-                // Toolbar
                 toolbar: "rgba(255, 255, 255, 0)",
                 toolbar_top_separator: "rgba(255, 255, 255, 0)",
                 toolbar_bottom_separator: "rgba(255, 255, 255, 0)",
-                // URL bar
                 toolbar_field_border: "rgba(255, 255, 255, 0)",
                 toolbar_field_border_focus: "rgb(130, 180, 245)",
-                // Sidebar
                 sidebar_border: "rgba(255, 255, 255, .2)",
-                // Popup
                 popup_border: "rgba(255, 255, 255, .2)",
-                // Static
                 tab_text: "rgb(255, 255, 255)",
                 tab_background_text: "rgb(250, 250, 250)",
                 tab_loading: "rgba(255, 255, 255, 0)",
@@ -90,47 +74,60 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
             },
         }
     }
+    
+    const [L, C, H] = chroma(bgColor).oklch();
+    const shift = fgScheme === 'lightText' ? -1 : 1;
+    
+    const frameL = Math.max(0.2, Math.min(1, L - (shift * 0.06)));
+    const toolbarL = Math.max(0.2, Math.min(1, L - (shift * 0.04)));
+    const toolbarTopSeparatorL = Math.max(0.2, Math.min(1, L - (shift * 0.12)));
 
-    const toolbar_field_colorCSS = (() => {
-        let color = chroma(bgColor).luminance() > 0.9 ?
-            chroma(bgColor).darken(0.23) : 
-            chroma(bgColor).luminance((chroma(bgColor).luminance() + 0.02) * 1.24, 'hsl')
-        
-        color.alpha(1)
-        return color.css()
-    })()
+    // Fix for grayscale: if chroma is near 0, hue is irrelevant. 
+    // Use a small epsilon to handle floating point precision.
+    const isGrayscale = Math.abs(C) < 0.001;
+    const safeC = isGrayscale ? 0 : C;
+    const safeH = isGrayscale ? 0 : H;
 
-    const tab_selected_colorCSS = toolbar_field_colorCSS
-
-    const bgColorCSS = chroma(bgColor).alpha(1).css()
+    const frameColorCSS = `oklch(${frameL} ${safeC} ${safeH})`;
+    const toolbarFieldColorCSS = `oklch(${toolbarL} ${safeC} ${safeH})`;
+    const toolbarTopSeparatorCSS = `oklch(${toolbarTopSeparatorL} ${safeC} ${safeH})`;
+    const bgColorCSS = chroma(bgColor).alpha(1).css();
 
     const theme = {
+        // reference: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/theme
         colors: {
-            // Tabbar & tab
-            frame: bgColorCSS,
-            frame_inactive: bgColorCSS,
-
-            tab_selected: tab_selected_colorCSS,
-            // URL bar
-            toolbar_field: toolbar_field_colorCSS,
+            ...fgSchemes[fgScheme]['colors'],
+            frame: frameColorCSS,
+            frame_inactive: frameColorCSS,
+            tab_selected: bgColorCSS,
+            toolbar: bgColorCSS,
+            // toolbar_top_separator: toolbarTopSeparatorCSS,
+            toolbar_bottom_separator: toolbarTopSeparatorCSS,
+            // toolbar_bottom_separator: bgColorCSS,
+            // toolbar_field: toolbarFieldColorCSS,
+            toolbar_field: toolbarFieldColorCSS,
 
             sidebar: bgColorCSS,
             popup: bgColorCSS,
-
-            toolbar_field_focus: toolbar_field_colorCSS,
-            // etc
-            ...fgSchemes[fgScheme]['colors']
+            toolbar_field_focus: toolbarFieldColorCSS,
         },
         properties: {
             ...fgSchemes[fgScheme]['properties']
         }
     }
+    
+    console.log("[colorf0x] Applying Theme:", {
+        bgColor: bgColor,
+        frame: frameColorCSS,
+        toolbar: bgColorCSS,
+        toolbarField: toolbarFieldColorCSS,
+        fgScheme: fgScheme
+    });
 
     browser.theme.update(windowId, theme)
 }
 
 const tryApplyTheme = (windowId, color, pagePrefersColorScheme) => {
-
     // workaround to delete 'deg' in HSL colors because chroma.js doesn't like it
     color = color.replace('deg', '')
     if (!chroma.valid(color) || chroma(color).alpha() == 0) {

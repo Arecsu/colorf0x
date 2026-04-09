@@ -35,14 +35,22 @@ if (document.querySelector("meta[name=theme-color]") != null) {
 // Detects style injections & theme-color being added to the dom
 const onStyleInjection = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-        if (
-            (mutation.addedNodes.length > 0 && mutation.addedNodes[0].nodeName == "STYLE") ||
-            (mutation.removedNodes.length > 0 && mutation.removedNodes[0].nodeName == "STYLE")
-        ) { sendCurrentColors() } 
-        else if (mutation.addedNodes.length > 0 && mutation.addedNodes[0].nodeName == "META" && mutation.addedNodes[0].name == "theme-color") {
-            onThemeColorChange.observe(document.querySelector("meta[name=theme-color]"), { attributes: true });
-            sendCurrentColors()
-        }
+        // Check all added nodes
+        mutation.addedNodes.forEach(node => {
+            if (node.nodeName === "STYLE") {
+                sendCurrentColors();
+            } else if (node.nodeName === "META" && node.getAttribute("name") === "theme-color") {
+                // Re-attach observer to the new meta tag
+                onThemeColorChange.observe(node, { attributes: true });
+                sendCurrentColors();
+            }
+        });
+        // Check all removed nodes for style changes
+        mutation.removedNodes.forEach(node => {
+            if (node.nodeName === "STYLE") {
+                sendCurrentColors();
+            }
+        });
     });
 });
 
