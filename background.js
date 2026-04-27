@@ -88,9 +88,13 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
     const safeC = isGrayscale ? 0 : C;
     const safeH = isGrayscale ? 0 : H;
 
+    const popupL = fgScheme === 'darkText' ? 0.97 : 0.18;
+    const popupC = fgScheme === 'darkText' ? safeC * 0.1 : safeC * 0.15;
+
     const frameColorCSS = `oklch(${frameL} ${safeC} ${safeH})`;
     const toolbarFieldColorCSS = `oklch(${toolbarL} ${safeC} ${safeH})`;
     const toolbarTopSeparatorCSS = `oklch(${toolbarTopSeparatorL} ${safeC} ${safeH})`;
+    const popupColorCSS = `oklch(${popupL} ${popupC} ${safeH})`;
     const bgColorCSS = chroma(bgColor).alpha(1).css();
 
     const theme = {
@@ -108,8 +112,8 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
             toolbar_field: toolbarFieldColorCSS,
 
             sidebar: bgColorCSS,
-            popup: bgColorCSS,
-            toolbar_field_focus: toolbarFieldColorCSS,
+            popup: popupColorCSS,
+            toolbar_field_focus: popupColorCSS,
         },
         properties: {
             ...fgSchemes[fgScheme]['properties']
@@ -121,6 +125,7 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
         frame: frameColorCSS,
         toolbar: bgColorCSS,
         toolbarField: toolbarFieldColorCSS,
+        popup: popupColorCSS,
         fgScheme: fgScheme
     });
 
