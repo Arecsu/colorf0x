@@ -130,13 +130,106 @@ const applyTheme = (windowId, bgColor, pagePrefersColorScheme) => {
     });
 
     browser.theme.update(windowId, theme)
+    windowState.set(windowId, "color")
 }
+
+// Firefox bug: theme.reset(windowId) makes the window fall back to the built-in
+// Default theme instead of the theme the user has enabled (e.g. Proton). So instead
+// of resetting, we restore the user's theme ourselves:
+//  - Fast path: re-apply the user's theme colors to the window (no flash). The API
+//    only exposes the theme's main variant, so this is only used when that variant
+//    matches the system light/dark mode.
+//  - Slow path: toggle the user's theme off and on, which makes Firefox re-broadcast
+//    it with all its variants. Causes a brief flash of Default and wipes every
+//    window override (re-applied by the global theme.onUpdated listener below).
+
+// windowId -> "color" (painted by colorf0x) | "user" (user theme re-applied by us)
+const windowState = new Map()
+// Colors of the user's enabled theme (main variant), or null for Firefox's Default
+let userThemeDetails = null
+let toggling = false
+const systemDark = window.matchMedia("(prefers-color-scheme: dark)")
+
+const parseThemeDetails = (details) => {
+    if (!details || !details.colors) return null
+    const colors = {}
+    for (const [key, value] of Object.entries(details.colors)) {
+        if (value != null) colors[key] = value
+    }
+    if (!colors.frame) return null
+    return { colors }
+}
+
+const isThemeDark = (details) => {
+    const frame = details.colors.frame
+    return chroma(Array.isArray(frame) ? frame.slice(0, 3) : frame).luminance() < 0.5
+}
+
+const matchesSystem = (details) => isThemeDark(details) === systemDark.matches
+
+const toggleUserTheme = async () => {
+    if (toggling) return
+    toggling = true
+    try {
+        const addons = await browser.management.getAll()
+        const userTheme = addons.find(a => a.type === "theme" && a.enabled)
+        if (!userTheme) return
+        await browser.management.setEnabled(userTheme.id, false)
+        await browser.management.setEnabled(userTheme.id, true)
+    } finally {
+        toggling = false
+    }
+}
+
+const restoreUserTheme = async (windowId) => {
+    if (windowState.get(windowId) !== "color") return
+
+    if (!userThemeDetails) {
+        browser.theme.reset(windowId)
+        windowState.delete(windowId)
+        return
+    }
+
+    if (matchesSystem(userThemeDetails)) {
+        browser.theme.update(windowId, userThemeDetails)
+        windowState.set(windowId, "user")
+        return
+    }
+
+    try {
+        await toggleUserTheme()
+    } catch (e) {
+        console.warn("[colorf0x] Could not toggle user theme, falling back to reset:", e)
+        browser.theme.reset(windowId)
+        windowState.delete(windowId)
+    }
+}
+
+// A global theme change (user switched theme, or our toggle) replaces all window
+// overrides, so forget them, remember the new theme and re-color windows.
+browser.theme.onUpdated.addListener(({ theme, windowId }) => {
+    if (windowId) return
+    userThemeDetails = parseThemeDetails(theme)
+    windowState.clear()
+    applyTheme_event()
+})
+
+// Windows where we re-applied the user's theme won't follow system light/dark
+// changes on their own; hand them back to Firefox when they no longer match.
+systemDark.addEventListener("change", () => {
+    const hasUserOverride = [...windowState.values()].includes("user")
+    if (hasUserOverride && userThemeDetails && !matchesSystem(userThemeDetails)) {
+        toggleUserTheme().catch(e => console.warn("[colorf0x] Could not toggle user theme:", e))
+    }
+})
+
+browser.theme.getCurrent().then(details => { userThemeDetails = parseThemeDetails(details) })
 
 const tryApplyTheme = (windowId, color, pagePrefersColorScheme) => {
     // workaround to delete 'deg' in HSL colors because chroma.js doesn't like it
     color = color.replace('deg', '')
     if (!chroma.valid(color) || chroma(color).alpha() == 0) {
-        browser.theme.reset(windowId)
+        restoreUserTheme(windowId)
         return
     }
     applyTheme(windowId, color, pagePrefersColorScheme)
@@ -151,7 +244,7 @@ const applyTheme_event = () => {
         tabs.forEach(tab => {
             browser.tabs.sendMessage(tab.id, { reason: "PAGE_COLOR_REQUEST" }, (response) => {
                 if (response === undefined || !response.color) {
-                    browser.theme.reset(tab.windowId)
+                    restoreUserTheme(tab.windowId)
                     return
                 }
                 tryApplyTheme(tab.windowId, response.color, response.pagePrefersColorScheme)
@@ -170,3 +263,4 @@ browser.tabs.onUpdated.addListener(applyTheme_event); // When new tab is opened 
 browser.tabs.onActivated.addListener(applyTheme_event); // When switch tabs
 browser.tabs.onAttached.addListener(applyTheme_event); // When a tab is attatched to a window
 browser.windows.onFocusChanged.addListener(applyTheme_event); // When a new window is opened
+browser.windows.onRemoved.addListener((windowId) => windowState.delete(windowId));
